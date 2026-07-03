@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEMS - Portfolio</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #EDF2F4;
+            --surface: #FFFFFF;
+            --border: rgba(141, 153, 174, 0.3);
+            --accent: #EF233C;
+            --accent2: #D90429;
+            --accent3: #2B2D42;
+            --text: #2B2D42;
+            --muted: #8D99AE;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #DCE2E8;
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .portfolio {
+            flex: 1;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        section {
+            padding: 96px 0;
+        }
+
+        .section-eyebrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .section-eyebrow::before,
+        .section-eyebrow::after {
+            content: '';
+            display: block;
+            width: 28px;
+            height: 1px;
+            background: var(--accent);
+            opacity: 0.4;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+        }
+
+        .section-title .grad {
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .portfolio-desc {
+            text-align: center;
+            margin-bottom: 36px;
+            color: var(--text);
+            opacity: 0.8;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 0.97rem;
+        }
+
+        .portfolio-filters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 9px 22px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            opacity: 0.8;
+            border-radius: 100px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.25s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            opacity: 1;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-color: transparent;
+            color: white;
+            opacity: 1;
+            box-shadow: 0 4px 16px rgba(239, 35, 60, 0.3);
+        }
+
+        /* ── PORTFOLIO KAFELKI ── */
+        .portfolio {
+            background: transparent;
+        }
+
+        .videos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            box-shadow: 0 4px 20px rgba(43, 45, 66, 0.04);
+        }
+
+        .video-card.hidden {
+            display: none;
+        }
+
+        .video-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(43, 45, 66, 0.12), 0 0 0 1px var(--accent);
+        }
+
+        .thumbnail-container {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .video-card:hover .thumbnail {
+            transform: scale(1.05);
+        }
+
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(43, 45, 66, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .video-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 32px rgba(239, 35, 60, 0.4);
+            transform: scale(0.85);
+            transition: transform 0.3s;
+        }
+
+        .video-card:hover .play-icon {
+            transform: scale(1);
+        }
+
+        .video-info {
+            padding: 20px 22px;
+        }
+
+        .video-info h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .video-info p {
+            color: var(--text);
+            opacity: 0.85;
+            font-size: 0.88rem;
+            line-height: 1.55;
+        }
+
+        .external-ig-link {
+            color: var(--accent);
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        /* Video Modal */
+        .video-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            inset: 0;
+            background: rgba(43, 45, 66, 0.85);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 980px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translate(-50%, -58%); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            color: white;
+            font-size: 36px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--accent);
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+        }
+
+        .video-iframe-container {
+            position: absolute;
+            inset: 0;
+            border: 0;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--accent3);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .github-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .github-link:hover {
+            color: white;
+        }
+
+        footer p {
+            font-size: 0.85rem;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .videos-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 98%;
+            }
+
+            .close-modal {
+                top: 10px;
+                right: 10px;
+                background: rgba(0, 0, 0, 0.7);
+                border-radius: 50%;
+                width: 44px;
+                height: 44px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- PORTFOLIO -->
+    <section id="portfolio" class="portfolio">
+        <div class="container">
+            <div class="section-eyebrow">Portfolio</div>
+            <h2 class="section-title">Moje <span class="grad">prace</span></h2>
+            <p class="portfolio-desc">
+                Kliknij w kafelek, aby obejrzeć film. Użyj filtrów, aby zobaczyć konkretny typ projektu.</p>
+            <div class="portfolio-filters">
+                <button class="filter-btn active" data-filter="all">Wszystkie</button>
+                <button class="filter-btn" data-filter="shorts">Shorts / Reels</button>
+                <button class="filter-btn" data-filter="long">Long-form</button>
+                <button class="filter-btn" data-filter="vfx">VFX</button>
+            </div>
+            <div class="videos-container">
+                <div class="video-card" data-video-index="5" data-category="shorts">
+                    <div class="thumbnail-container">
+                        <img src="klapki.png" alt="Klapki sterują umysłem!" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Klapki sterują umysłem!</h3>
+                        <p>Materiał sprzedażowy dla sklepu z odzieżą premium. Rolka osiągnęła 148.000 wyświetleń w
+                            tydzień bez promowania. </p>
+                    </div>
+                </div>
+                <a href="https://www.instagram.com/p/DRZ7aA_jm4E/" target="_blank" class="video-card" data-category="shorts">
+                    <div class="thumbnail-container">
+                        <img src="swiry.jpg" alt="Relacja ze ŚWiRowania" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-external-link-alt"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Relacja ze ŚWiRowania</h3>
+                        <p>Śląża w 20 sekund – adrenalinowy przejazd! Dynamiczna relacja z rowerowego spotkania.</p>
+                        <p class="external-ig-link"><i class="fab fa-instagram"></i> Otwórz na Instagramie</p>
+                    </div>
+                </a>
+                <a href="https://www.instagram.com/p/DM45I4Ruuve/" target="_blank" class="video-card" data-category="shorts">
+                    <div class="thumbnail-container">
+                        <img src="niewyszlo.jpg" alt="Koniec projektu rowerowego" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-external-link-alt"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Koniec projektu rowerowego</h3>
+                        <p>Dlaczego ten projekt upadł? Rolka zapraszająca do obejrzenia pełnego filmu.</p>
+                        <p class="external-ig-link"><i class="fab fa-instagram"></i> Otwórz na Instagramie</p>
+                    </div>
+                </a>
+                <div class="video-card" data-video-index="4" data-category="vfx">
+                    <div class="thumbnail-container">
+                        <img src="VFX.jpg" alt="Przykład VFX: vulcano text" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Przykład VFX: vulcano text</h3>
+                        <p>Krótka prezentacja umiejętności VFX w DaVinci Fusion – ożywiamy tekst jak lawę!</p>
+                    </div>
+                </div>
+                <div class="video-card" data-video-index="3" data-category="long">
+                    <div class="thumbnail-container">
+                        <img src="bmx.jpg" alt="Relacja z contestu BMX freestyle" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Relacja z contestu BMX freestyle</h3>
+                        <p>BMX Freestyle na Popowicach – emocje do ostatniego triku!</p>
+                    </div>
+                </div>
+                <div class="video-card" data-video-index="0" data-category="shorts">
+                    <div class="thumbnail-container">
+                        <img src="wodor1.png" alt="Wizyta w salonie beauty" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Wizyta w salonie beauty</h3>
+                        <p>Ekskluzywna relacja z wizyty w salonie – inspiracje i profesjonalne zabiegi.</p>
+                    </div>
+                </div>
+                <div class="video-card" data-video-index="6" data-category="shorts">
+                    <div class="thumbnail-container">
+                        <img src="zdrowotka.png" alt="Sklep zielarski" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Sklep zielarski w twojej okolicy!</h3>
+                        <p>Materiał pod Meta Ads, promujący lokalny sklep zielarski.</p>
+                    </div>
+                </div>
+                <a href="https://www.instagram.com/reel/DPWkN0fDitU/" target="_blank" class="video-card" data-category="shorts">
+                    <div class="thumbnail-container">
+                        <img src="agrest.png" alt="Ale styl!" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-external-link-alt"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Ale styl!</h3>
+                        <p>Materiał z najlepszymi liniami przejazdów uczestników spotkania BMX.</p>
+                        <p class="external-ig-link"><i class="fab fa-instagram"></i> Otwórz na Instagramie</p>
+                    </div>
+                </a>
+                <div class="video-card" data-video-index="8" data-category="long">
+                    <div class="thumbnail-container">
+                        <img src="miniatura_rezi.png" alt="Rezi warriors 2026" class="thumbnail">
+                        <div class="play-overlay">
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3>Rezi warriors 2026!</h3>
+                        <p>Wciągające streszczenie ostatniej imprezy MTB DIRT w Strzegomiu! Sztuczki rowerowe na poziomie światowym!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Modal -->
+            <div id="videoModal" class="video-modal">
+                <div class="modal-content">
+                    <button class="close-modal">&times;</button>
+                    <div class="video-wrapper">
+                        <div class="video-iframe-container" id="videoContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container footer-container">
+            <a href="https://github.com/HenrykMszyca/Portfolio" target="_blank" class="github-link">
+                <i class="fab fa-github"></i> Zobacz projekt na GitHub
+            </a>
+            <p>© 2026 Henryk Mszyca. Wszystkie prawa zastrzeżone.</p>
+            <p>Montaż filmów dla social media | Shorts | Long-form | Events</p>
+        </div>
+    </footer>
+
+    <script>
+        // VIDEO MODAL
+        const videoIframes = [
+            `<div style="position:relative;padding-top:56.25%;"><iframe src="https://player.mediadelivery.net/embed/558829/28efb541-5d7a-4325-9cd5-a092fb6db849?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" style="border:0;position:absolute;top:0;height:100%;width:100%;" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true"></iframe></div>`,
+            null, null,
+            `<div style="position:relative;padding-top:56.25%;"><iframe src="https://player.mediadelivery.net/embed/558829/6e596615-bc83-40cc-b903-d2dd17a2b44d?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" style="border:0;position:absolute;top:0;height:100%;width:100%;" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true"></iframe></div>`,
+            `<div style="position:relative;padding-top:56.25%;"><iframe src="https://player.mediadelivery.net/embed/558829/5d52c263-abc9-4cb0-afe6-0db3e251260e?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" style="border:0;position:absolute;top:0;height:100%;width:100%;" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true"></iframe></div>`,
+            `<div style="position:relative;padding-top:56.25%;"><iframe src="https://player.mediadelivery.net/embed/558829/a4b9c9c8-9cdc-49f4-aba4-893a6a4c319c" loading="lazy" style="border:0;position:absolute;top:0;height:100%;width:100%;" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true"></iframe></div>`,
+            `<div style="position:relative;padding-top:56.25%;"><iframe src="https://player.mediadelivery.net/embed/558829/5e7524ce-92cb-455b-8ca5-acb759015b0b?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" style="border:0;position:absolute;top:0;height:100%;width:100%;" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true"></iframe></div>`,
+            null,
+            `<div style="position:relative;padding-top:56.25%;"><iframe src="https://player.mediadelivery.net/embed/558829/02586f57-3e53-4d6c-a390-2e7c5d4d3bb7?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" style="border:0;position:absolute;top:0;height:100%;width:100%;" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;" allowfullscreen="true"></iframe></div>`
+        ];
+
+        const videoModal = document.getElementById('videoModal');
+        const videoContainer = document.getElementById('videoContainer');
+        const closeModalBtn = document.querySelector('.close-modal');
+
+        document.querySelectorAll('.video-card[data-video-index]').forEach(card => {
+            card.addEventListener('click', function () {
+                const idx = parseInt(this.getAttribute('data-video-index'));
+                if (videoIframes[idx]) {
+                    videoContainer.innerHTML = videoIframes[idx];
+                    videoModal.style.display = 'block';
+                    document.body.classList.add('modal-open');
+                }
+            });
+        });
+        closeModalBtn.addEventListener('click', closeModal);
+        videoModal.addEventListener('click', e => { if (e.target === videoModal) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        function closeModal() {
+            videoModal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = 'auto';
+            videoContainer.innerHTML = '';
+        }
+
+        // FILTRY
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const videoCards = document.querySelectorAll('.video-card');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const val = btn.getAttribute('data-filter');
+                videoCards.forEach(card => {
+                    card.classList.toggle('hidden', val !== 'all' && card.getAttribute('data-category') !== val);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
